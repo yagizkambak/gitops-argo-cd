@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gitops-react-app
+spec: 
+  destination:
+    namespace: gitops
+    server: https://kubernetes.default.svc
+  project: gitops
+  source:
+    path: charts/gitops-react-app
+    repoURL: 'https://gitlab.com/***/gitops-argo-cd.git'
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: true
+    syncOptions:
+      - CreateNamespace=true

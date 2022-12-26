@@ -1,0 +1,10 @@
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: gitops-react-app
+  labels:
+    app.kubernetes.io/name: gitops-react-app
+    app.kubernetes.io/instance: gitops-react-app
+data:
+  init: default

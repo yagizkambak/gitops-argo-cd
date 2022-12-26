@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gitops-react-app
+  labels:
+    app.kubernetes.io/name: gitops-react-app
+    app.kubernetes.io/instance: gitops-react-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: gitops-react-app
+      app.kubernetes.io/instance: gitops-react-app
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: gitops-react-app
+        app.kubernetes.io/instance: gitops-react-app
+    spec:
+      imagePullSecrets:
+        - name: gitops-react-app-docker-credentials
+      securityContext:
+        {}
+      containers:
+        - name: app
+          command: [nginx]
+          args:
+            - -g
+            - daemon off;
+          securityContext:
+            {}
+          image: registry.gitlab.com/your-group/gitops-react-app/master:short_commit_sha
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          ports:
+          - containerPort: 80
+            name: http
+            protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 15
+          workingDir: /app
+          resources:
+            limits:
+              cpu: 900m
+              memory: 512Mi
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          env:
+            - name: init
+              valueFrom:
+                configMapKeyRef:
+                  name: gitops-react-app
+                  key: init
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: fullname
+                  operator: In
+                  values:
+                  - gitops-react-app
+              topologyKey: "kubernetes.io/hostname"

@@ -1,0 +1,26 @@
+---
+# Source: architecture-angular/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gitops-react-app
+  labels:
+    app.kubernetes.io/name: gitops-react-app
+    app.kubernetes.io/instance: gitops-react-app
+  annotations:
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+    - host: "gitops-react-app-demo.com"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gitops-react-app
+                port:
+                  number: 80
